@@ -24,7 +24,7 @@ This project is a Rental Car Management System (RCMS) designed to manage car ren
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/rental-car-management-system.git
+   git clone https://github.com/suryakailash-risk/Rental-Car.git
    ```
 
 2. Navigate to the project directory:
@@ -48,7 +48,7 @@ This project is a Rental Car Management System (RCMS) designed to manage car ren
 To run the application, execute the following command in the terminal:
 
 ```bash
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 This will start the Streamlit server and open the application in your default web browser.
