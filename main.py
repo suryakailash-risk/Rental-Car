@@ -3,9 +3,9 @@ from datetime import datetime
 import streamlit as st
 import extra_streamlit_components as stx
 import streamlit as st
-import tkinter
 from streamlit_chat import message
 import time
+
 st.sidebar.title('Select the Type of Database')
 
 hide_streamlit_style = """
@@ -32,43 +32,18 @@ footer:after {
 
 
 
-options = ['Select Database','MySQL', 'Mongodb']
+options = ['Select Database','MySQL - AWS(RDS)']
 
-# Create the dropdown menu
 selected_option = st.sidebar.selectbox('Select an Database:', options)
 
-# Display the selected option
-
-
-
-if selected_option=="Mongodb":
-    from pymongo import MongoClient
-
-    # try:
-        # Replace 'your_connection_string' with your actual MongoDB connection string.
-    client = MongoClient('mongodb://localhost:27017')
-
-        # Test the connection
-    client.server_info()
-    print("Connected to MongoDB server")
-    st.write('You selected:', selected_option)
-# except Exception as e:
-#     print("Error while connecting to MongoDB", e)
-
-# finally:
-#     # Close the connection
-#     client.close()
-#     print("MongoDB connection is closed")
-
-
-elif selected_option=="MySQL":
+if selected_option=="MySQL - AWS(RDS)":
     import mysql.connector
 
     # try:
     connection = mysql.connector.connect(
-                host='localhost',
+                host='mohitamode.c7ww0086ajus.us-east-1.rds.amazonaws.com',
                 user='admin',
-                password='Rule#123',
+                password='12345678',
                 database='mm_team02_01'
             )
 
@@ -79,7 +54,7 @@ elif selected_option=="MySQL":
     cursor = connection.cursor()
     selected_option = stx.tab_bar(data=[
     stx.TabBarItemData(id=1, title="Query", description="Run SQL Query"),
-    stx.TabBarItemData(id=2, title="Create", description="Add Data Dynamically"),
+    stx.TabBarItemData(id=2, title="Run", description="View Data Dynamically"),
 ], default=1)
     if  selected_option == '1':
         dictionarydata={
@@ -92,18 +67,14 @@ elif selected_option=="MySQL":
                                                                                             FROM rental_details
                                                                                             JOIN car ON rental_details.Car_id = car.Car_id
                                                                                             GROUP BY Car_brand;"""},
-                        "SP - Get Customer Rental Details":{'id':"3","Query":"""call GetCustomerRentalDetails"""},
-                        "SP - Calculate Total Revenue":{'id':"4","Query":"""call CalculateTotalRevenue"""},
-                        "SP - Get Customer Rental History":{'id':"5","Query":"""call GetCustomerRentalHistory"""},
-                        "Find the location with the highest average rental cost":{'id':'6','Query':"""SELECT rd.location_id, l.address_line1, l.address_line2, l.state, l.pincode, l.landmark, AVG(rd.Estimated_cost) AS avg_rental_cost
-                                                                                                        FROM rental_details rd
-                                                                                                        JOIN location l
-                                                                                                        ON rd.location_id = l.location_id
-                                                                                                        GROUP BY rd.location_id
-                                                                                                        ORDER BY avg_rental_cost DESC
-                                                                                                        LIMIT 5;
+                       
+            "Calculate the total number of rentals and average rental cost per customer:":{'id':'6','Query':"""SELECT c.Customer_id, c.Customer_fname, c.Customer_lname, c.Customer_phone, c.Customer_license, COUNT(*) AS total_rentals, AVG(rd.Estimated_cost) AS avg_rental_cost
+FROM rental_details rd
+JOIN customer c
+ON c.Customer_id= rd.Customer_id
+GROUP BY Customer_id;
                                                                                                         """},
-                        "Each rental month and year, total estimated cost for that month":{'id':'7','Query':"""SELECT 
+            "Each rental month and year, total estimated cost for that month":{'id':'7','Query':"""SELECT 
                                                                                                                     CASE 
                                                                                                                         WHEN MONTH(Rental_startdate) = 1 THEN 'January'
                                                                                                                         WHEN MONTH(Rental_startdate) = 2 THEN 'February'
@@ -127,21 +98,34 @@ elif selected_option=="MySQL":
                                                                                                                 ORDER BY 
                                                                                                                     monthly_revenue DESC;
                                                                                                                 """},
-                        "car model with the highest average mileage per rental hour":{'id':'8','Query':"""SELECT Car_model, AVG(Car_milage / Rental_total_hrs) AS avg_mileage_per_hour
+            "car model with the highest average mileage per rental hour":{'id':'8','Query':"""SELECT Car_model, AVG(Car_milage / Rental_total_hrs) AS avg_mileage_per_hour
                                                                                                             FROM car
                                                                                                             JOIN rental_details ON car.Car_id = rental_details.Car_id
                                                                                                             GROUP BY Car_model
                                                                                                             ORDER BY avg_mileage_per_hour DESC;
                                                                                                             """},
-                        "total revenue generated from rentals with insurance vs. without insurance":{'id':'9','Query':"""SELECT SUM(CASE WHEN Rental_insurance IS NOT NULL THEN Estimated_cost ELSE 0 END) AS revenue_with_insurance,
-                                                                                                                        SUM(CASE WHEN Rental_insurance IS NULL THEN Estimated_cost ELSE 0 END) AS revenue_without_insurance
-                                                                                                                        FROM rental_details;"""}
+            "Calculate the total revenue generated from rentals for each customer":{'id':'9','Query':"""SELECT 
+                                                                                                                    rd.Customer_id,
+                                                                                                                    c.Customer_fname,
+                                                                                                                    c.Customer_lname,
+                                                                                                                    SUM(rd.Estimated_cost) AS Total_Revenue,
+                                                                                                                    count(rd.Rental_id) As Total_Booked
+                                                                                                                FROM 
+                                                                                                                    rental_details rd
+                                                                                                                JOIN 
+                                                                                                                    customer c ON rd.Customer_id = c.Customer_id
+                                                                                                                GROUP BY 
+                                                                                                                    rd.Customer_id, c.Customer_fname, c.Customer_lname;"""},
+            "SP - Get Customer Rental Details":{'id':"3","Query":"""call GetCustomerRentalDetails"""},
+            "SP - Calculate Total Revenue":{'id':"4","Query":"""call CalculateTotalRevenue"""},
+            "SP - Get Customer Rental History":{'id':"5","Query":"""call GetCustomerRentalHistory"""}
+                        
                         
         }
         queryoption = list(dictionarydata.keys()) 
         selected_option_query = st.selectbox('Select an SQL Query:', queryoption)
         querydata=dictionarydata[selected_option_query]
-        if ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='1')):
+        if   ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='1')):
             
             time.sleep(1)
             message("""Hey!!
@@ -152,53 +136,83 @@ elif selected_option=="MySQL":
                     Query that is going to run is :""", is_user=True)  # align's the message to the right
             time.sleep(1)
             st.title("Query")
-            st.text_area(label=" ",value="""SELECT Car_model, AVG(DATEDIFF(Rental_enddate, Rental_startdate)) AS avg_rental_duration
-    FROM rental_details
-    JOIN car ON rental_details.Car_id = car.Car_id
-    GROUP BY Car_model;""",height=150, disabled=True)
+            st.text_area(label=" ",value="""WITH exc AS (
+                                                        SELECT Car_model, AVG(DATEDIFF(Rental_enddate, Rental_startdate)) AS avg_rental_duration
+                                                        FROM rental_details
+                                                        JOIN car ON rental_details.Car_id = car.Car_id
+                                                        GROUP BY Car_model
+                                                    )
+                                                    SELECT * FROM exc
+                                                    where Car_model='{car_model}';""",height=150, disabled=True)
             query = """
-        SELECT Car_model, AVG(DATEDIFF(Rental_enddate, Rental_startdate)) AS avg_rental_duration
-        FROM rental_details
-        JOIN car ON rental_details.Car_id = car.Car_id
-        GROUP BY Car_model;
-        """
+                SELECT DISTINCT Car_model FROM car;
+                """
             cursor.execute(query)
-            rows = cursor.fetchall()
-            df=pd.DataFrame(rows)
-            st.title("Data from the Database")
-            df.columns=['car model','count']
-            st.dataframe(df, height=300, width=650)
-            st.balloons()
-            st.toast('Hooray! This Query is a successful!', icon="✅")
-
+            car_model_data = cursor.fetchall()
+            car_models_list = [model[0] for model in car_model_data]
+            # car_models_list = ['None', '*', *car_models_list]
+            car_model=st.selectbox('Select an Car Model:',car_models_list, index=0)
+            if st.button("Submit Query1"):
+                query = f"""
+                        WITH exc AS (
+                            SELECT Car_model, AVG(DATEDIFF(Rental_enddate, Rental_startdate)) AS avg_rental_duration
+                            FROM rental_details
+                            JOIN car ON rental_details.Car_id = car.Car_id
+                            GROUP BY Car_model
+                        )
+                        SELECT * FROM exc
+                        where Car_model='{car_model}';
+                                    """
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                df=pd.DataFrame(rows)
+                st.title("Data from the Database")
+                df.columns=['car model','Avg Rental Duration']
+                st.dataframe(df, height=100, width=650)
+                st.balloons()
+                st.toast('Hooray! This Query is a successful!', icon="✅")
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='2')):
             time.sleep(1)
             message("""Hey!!
-                    Give me Total revenue generated from rentals for each car brand.
+                    Give me Find the total revenue generated from rentals for each car brand:
                     Query and Output""") 
             time.sleep(1)
             message("""Hello I am MSD bot!
                     Query that is going to run is :""", is_user=True)  # align's the message to the right
             time.sleep(1)
             st.title("Query")
-            st.text_area(label=" ",value="""SELECT Car_brand, CONCAT('$', FORMAT(SUM(Estimated_cost), 2)) AS total_revenue
-FROM rental_details
-JOIN car ON rental_details.Car_id = car.Car_id
-GROUP BY Car_brand;""",height=150, disabled=True)
+            st.text_area(label=" ",value="""WITH exc AS (
+                        SELECT Car_brand, CONCAT('$', FORMAT(SUM(Estimated_cost), 2)) AS total_revenue
+                        FROM rental_details
+                        JOIN car ON rental_details.Car_id = car.Car_id
+                        GROUP BY Car_brand)
+                        select * from exc
+                        where Car_brand = '{Car Brand}';""",height=150, disabled=True)
             query = """
-SELECT Car_brand, CONCAT('$', FORMAT(SUM(Estimated_cost), 2)) AS total_revenue
-FROM rental_details
-JOIN car ON rental_details.Car_id = car.Car_id
-GROUP BY Car_brand;
-        """
+                SELECT DISTINCT Car_brand FROM car;
+                """
             cursor.execute(query)
-            rows = cursor.fetchall()
-            st.title("Data from the Database")
-            df=pd.DataFrame(rows)
-            df.columns=['Car Brand','Total Revenue in USA $']
-            st.dataframe(df, height=300, width=650)
-            st.balloons()
-            st.toast('Hooray! This Query is a successful!', icon="✅")
+            Car_brand_data = cursor.fetchall()
+            Car_brand_list = [model[0] for model in Car_brand_data]
+            Car_brand=st.selectbox('Select an Database:',Car_brand_list)
+            if st.button("Submit1"):
+                query = f"""
+                        WITH exc AS (
+                        SELECT Car_brand, CONCAT('$', FORMAT(SUM(Estimated_cost), 2)) AS total_revenue
+                        FROM rental_details
+                        JOIN car ON rental_details.Car_id = car.Car_id
+                        GROUP BY Car_brand)
+                        select * from exc
+                        where Car_brand = '{Car_brand}';
+                                """
+                cursor.execute(query)
+                rows = cursor.fetchall()
+                st.title("Data from the Database")
+                df=pd.DataFrame(rows)
+                df.columns=['Car Brand','Total Revenue in USA $']
+                st.dataframe(df, height=300, width=650)
+                st.balloons()
+                st.toast('Hooray! This Query is a successful!', icon="✅")
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='3')):
             time.sleep(1)
             message("""Hey!!
@@ -255,17 +269,23 @@ GROUP BY Car_brand;
                 df.columns=['Customer Firstname','Customer Lastname', 'Email','Estimated_cost','Car_model']
                 st.dataframe(df, height=300, width=650)
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='6')):
-            st.write("Query")
-            st.write('''call GetCustomerRentalHistory(<<Customer ID>>);''')
-            Customer_ID = st.number_input('Enter a Customer ID', value=0, min_value=0, max_value=100, step=1)
-            st.write("1-100")
-            st.write('You entered:', Customer_ID)
+            st.title("Query")
+            st.text_area(label=" ",value="""SELECT c.Customer_id, c.Customer_fname, c.Customer_lname, c.Customer_phone, c.Customer_license, COUNT(*) AS total_rentals, AVG(rd.Estimated_cost) AS avg_rental_cost
+FROM rental_details rd
+JOIN customer c
+ON c.Customer_id= rd.Customer_id
+GROUP BY Customer_id;""",height=150, disabled=True)
             if st.button("Submit"):
-                query = f"""call GetCustomerRentalHistory({Customer_ID})"""
+                query = f"""SELECT c.Customer_id, c.Customer_fname, c.Customer_lname, c.Customer_phone, c.Customer_license, COUNT(*) AS total_rentals, AVG(rd.Estimated_cost) AS avg_rental_cost
+FROM rental_details rd
+JOIN customer c
+ON c.Customer_id= rd.Customer_id
+GROUP BY Customer_id;
+"""
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 df=pd.DataFrame(rows)
-                df.columns=['Customer Firstname','Customer Lastname', 'Email','Estimated_cost','Car_model']
+                df.columns=['Customer_id','Customer_fname', 'Customer_lname','Customer_phone','Customer_license','total_rentals', 'avg_rental_cost']
                 st.dataframe(df, height=300, width=650)
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='7')):
             time.sleep(1)
@@ -329,6 +349,14 @@ GROUP BY Car_brand;
             df=pd.DataFrame(rows)
             # df.columns=['Customer Firstname','Customer Lastname', 'Email','Estimated_cost','Car_model']
             st.dataframe(df, height=300, width=650)
+            import matplotlib.pyplot as plt
+            # Create a bar plot using matplotlib
+            plt.figure(figsize=(10,5))
+            plt.pie(df[2], labels=df[0], autopct='%1.1f%%')
+            plt.title('Monthly Values')
+
+            # Display the plot with Streamlit
+            st.pyplot(plt)
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='8')):
             time.sleep(1)
             message("""Hey!!
@@ -357,46 +385,48 @@ GROUP BY Car_brand;
                 st.dataframe(df, height=300, width=650)
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='9')):
             time.sleep(1)
-            message("""Hey!!
-                    Give me Total revenue generated from rentals for each car brand.
-                    Query and Output""") 
-            time.sleep(1)
-            message("""Hello I am MSD bot!
-                    Query that is going to run is :""", is_user=True)  # align's the message to the right
-            time.sleep(1)
             st.title("Query")
-            st.text_area(label=" ",value="""SELECT SUM(CASE WHEN Rental_insurance IS NOT NULL THEN Estimated_cost ELSE 0 END) AS revenue_with_insurance,
-                                            SUM(CASE WHEN Rental_insurance IS NULL THEN Estimated_cost ELSE 0 END) AS revenue_without_insurance
-                                            FROM rental_details;""",height=150, disabled=True)
+            st.text_area(label=" ",value="""SELECT 
+       rd.Customer_id,
+       c.Customer_fname,
+       c.Customer_lname,
+       SUM(rd.Estimated_cost) AS Total_Revenue,
+       count(rd.Rental_id) As Total_Booked
+   FROM 
+       rental_details rd
+   JOIN 
+       customer c ON rd.Customer_id = c.Customer_id
+   GROUP BY 
+       rd.Customer_id, c.Customer_fname, c.Customer_lname;""",height=150, disabled=True)
             if st.button("Submit"):
-                query = f"""SELECT SUM(CASE WHEN Rental_insurance IS NOT NULL THEN Estimated_cost ELSE 0 END) AS revenue_with_insurance,
-                            SUM(CASE WHEN Rental_insurance IS NULL THEN Estimated_cost ELSE 0 END) AS revenue_without_insurance
-                            FROM rental_details;"""
+                query = f"""SELECT 
+       rd.Customer_id,
+       c.Customer_fname,
+       c.Customer_lname,
+       SUM(rd.Estimated_cost) AS Total_Revenue,
+       count(rd.Rental_id) As Total_Booked
+   FROM 
+       rental_details rd
+   JOIN 
+       customer c ON rd.Customer_id = c.Customer_id
+   GROUP BY 
+       rd.Customer_id, c.Customer_fname, c.Customer_lname;"""
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 df=pd.DataFrame(rows)
                 # df.columns=['Customer Firstname','Customer Lastname', 'Email','Estimated_cost','Car_model']
                 st.dataframe(df, height=300, width=650)
-            
+
     elif selected_option =='2':
         
-        st.title("Database Update Queries")
-        st.write("First Customer Queries")
-        col1, col2 = st.columns(2)
-        with col1:
-            fname=st.text_input("First Name")
-            email=st.text_input("Email Address")
-        with col2:
-            lname=st.text_input("Last Name")
-            licensedata=st.text_input("License")
-        phone=st.number_input("Phone Number", format="%f") 
-        if st.button("Submit"):
-                query = f"""INSERT INTO customer (Customer_fname, Customer_lname, Customer_email, Customer_phone, Customer_license) 
-                        VALUES ({fname}, {lname}, {str(email)}, {int(phone)}, {str(licensedata)});
-                        """
-                cursor.execute(query)
+        st.title("Database Queries")
+        query=st.text_area(label="Enter Query",value="""select * from car""",height=150)
 
+        if st.button("Submit"):
+                cursor.execute(query)
                 rows = cursor.fetchall()
-                st.success("Data Inserted Successfully",rows)
+                df=pd.DataFrame(rows)
+                st.title("Data from the Database")
+                st.dataframe(df, height=100, width=650)
 elif  selected_option=="Select Database":
      st.write('You Need to select database')
