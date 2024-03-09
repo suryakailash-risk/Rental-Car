@@ -60,9 +60,7 @@ if selected_option=="MySQL - AWS(RDS)":
     #         )
     connection = sqlite3.connect('database.db')
     cursor = connection.cursor()
-    if connection.is_connected():
-                db_info = connection.get_server_info()
-                print("Connected to MySQL Server version ", db_info)
+
     st.title(f'You selected: {selected_option} database')
     cursor = connection.cursor()
     selected_option=1
