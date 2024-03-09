@@ -1,7 +1,7 @@
 import subprocess
 import pkg_resources
 
-REQUIRED_PACKAGES = ['mysql-connector-python', 'streamlit-chat', 'streamlit','pandas','matplotlib']
+REQUIRED_PACKAGES = ['mysql-connector-python', 'streamlit-chat', 'sqlite3','pandas','matplotlib']
 
 for package in REQUIRED_PACKAGES:
     try:
@@ -49,16 +49,17 @@ options = ['Select Database','MySQL - AWS(RDS)']
 selected_option = st.sidebar.selectbox('Select an Database:', options)
 
 if selected_option=="MySQL - AWS(RDS)":
-    import mysql.connector
-
-    # try:
-    connection = mysql.connector.connect(
-                host='mohitamode.c7ww0086ajus.us-east-1.rds.amazonaws.com',
-                user='admin',
-                password='12345678',
-                database='mm_team02_01'
-            )
-
+    # import mysql.connector
+    import sqlite3
+    # # try:
+    # connection = mysql.connector.connect(
+    #             host='mohitamode.c7ww0086ajus.us-east-1.rds.amazonaws.com',
+    #             user='admin',
+    #             password='12345678',
+    #             database='mm_team02_01'
+    #         )
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
     if connection.is_connected():
                 db_info = connection.get_server_info()
                 print("Connected to MySQL Server version ", db_info)
