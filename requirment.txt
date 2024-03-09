@@ -1,0 +1,6 @@
+!pip install mysql-connector-python
+!pip install streamlit-chat
+!pip install extra-streamlit-components
+!pip install streamlit
+!pip install pandas
+!pip install matplotlib
