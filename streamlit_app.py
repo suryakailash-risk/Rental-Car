@@ -16,7 +16,7 @@ for package in REQUIRED_PACKAGES:
 import pandas as pd
 from datetime import datetime
 import streamlit as st
-from streamlit_chat import message
+
 import time
 st.sidebar.title('Select the Type of Database')
 
@@ -136,14 +136,6 @@ GROUP BY Customer_id;
         querydata=dictionarydata[selected_option_query]
         if   ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='1')):
             
-            time.sleep(1)
-            message("""Hey!!
-                    Give me Average rental duration for each car model.
-                    Query and Output""") 
-            time.sleep(1)
-            message("""Hello I am MSD bot!
-                    Query that is going to run is :""", is_user=True)  # align's the message to the right
-            time.sleep(1)
             st.title("Query")
             st.text_area(label=" ",value="""WITH exc AS (
                                                         SELECT Car_model, AVG(DATEDIFF(Rental_enddate, Rental_startdate)) AS avg_rental_duration
@@ -181,14 +173,7 @@ GROUP BY Customer_id;
                 st.balloons()
                 st.toast('Hooray! This Query is a successful!', icon="✅")
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='2')):
-            time.sleep(1)
-            message("""Hey!!
-                    Give me Find the total revenue generated from rentals for each car brand:
-                    Query and Output""") 
-            time.sleep(1)
-            message("""Hello I am MSD bot!
-                    Query that is going to run is :""", is_user=True)  # align's the message to the right
-            time.sleep(1)
+
             st.title("Query")
             st.text_area(label=" ",value="""WITH exc AS (
                         SELECT Car_brand, CONCAT('$', FORMAT(SUM(Estimated_cost), 2)) AS total_revenue
@@ -223,14 +208,7 @@ GROUP BY Customer_id;
                 st.balloons()
                 st.toast('Hooray! This Query is a successful!', icon="✅")
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='3')):
-            time.sleep(1)
-            message("""Hey!!
-                    Run a Stored procedure to Get Customer Rental Details By ID
-                    Query and Output""") 
-            time.sleep(1)
-            message("""Hello I am MSD bot!
-                    Query that is going to run is :""", is_user=True)  # align's the message to the right
-            time.sleep(1)
+
             st.title("Query")
             st.text_area(label=" ",value='''call GetCustomerRentalDetails(<< Enter Customer ID>>);''', disabled=True)
             Customer_ID = st.number_input('Enter a number', value=0, min_value=0, max_value=100, step=1)
@@ -297,14 +275,7 @@ GROUP BY Customer_id;
                 df.columns=['Customer_id','Customer_fname', 'Customer_lname','Customer_phone','Customer_license','total_rentals', 'avg_rental_cost']
                 st.dataframe(df, height=300, width=650)
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='7')):
-            time.sleep(1)
-            message("""Hey!!
-                    Calculate the total revenue generated from rentals for each month of the year.
-                    Query and Output""") 
-            time.sleep(1)
-            message("""Hello I am MSD bot!
-                    Query that is going to run is :""", is_user=True)  # align's the message to the right
-            time.sleep(1)
+
             st.title("Query")
             st.text_area(label=" ",value="""SELECT 
                             CASE 
@@ -367,14 +338,7 @@ GROUP BY Customer_id;
             # Display the plot with Streamlit
             st.pyplot(plt)
         elif ((selected_option_query in dictionarydata.keys()) and (querydata['id']=='8')):
-            time.sleep(1)
-            message("""Hey!!
-                    Give me Total revenue generated from rentals for each car brand.
-                    Query and Output""") 
-            time.sleep(1)
-            message("""Hello I am MSD bot!
-                    Query that is going to run is :""", is_user=True)  # align's the message to the right
-            time.sleep(1)
+            
             st.title("Query")
             st.text_area(label=" ",value="""SELECT Car_model, AVG(Car_milage / Rental_total_hrs) AS avg_mileage_per_hour
                                             FROM car
