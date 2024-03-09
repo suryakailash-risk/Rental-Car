@@ -1,3 +1,18 @@
+import subprocess
+import pkg_resources
+
+REQUIRED_PACKAGES = ['mysql-connector-python', 'streamlit-chat', 'extra-streamlit-components','streamlit','pandas','matplotlib']
+
+for package in REQUIRED_PACKAGES:
+    try:
+        dist = pkg_resources.get_distribution(package)
+        print('{} ({}) is installed'.format(dist.key, dist.version))
+    except pkg_resources.DistributionNotFound:
+        print('{} is NOT installed'.format(package))
+        subprocess.call(['pip', 'install', package])
+
+
+
 import pandas as pd
 from datetime import datetime
 import streamlit as st
@@ -5,7 +20,6 @@ import extra_streamlit_components as stx
 import streamlit as st
 from streamlit_chat import message
 import time
-
 st.sidebar.title('Select the Type of Database')
 
 hide_streamlit_style = """
