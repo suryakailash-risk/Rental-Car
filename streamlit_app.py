@@ -1,7 +1,7 @@
 import subprocess
 import pkg_resources
 
-REQUIRED_PACKAGES = ['mysql-connector-python', 'streamlit-chat', 'extra-streamlit-components','streamlit','pandas','matplotlib']
+REQUIRED_PACKAGES = ['mysql-connector-python', 'streamlit-chat', 'streamlit','pandas','matplotlib']
 
 for package in REQUIRED_PACKAGES:
     try:
@@ -15,8 +15,6 @@ for package in REQUIRED_PACKAGES:
 
 import pandas as pd
 from datetime import datetime
-import streamlit as st
-import extra_streamlit_components as stx
 import streamlit as st
 from streamlit_chat import message
 import time
@@ -66,10 +64,7 @@ if selected_option=="MySQL - AWS(RDS)":
                 print("Connected to MySQL Server version ", db_info)
     st.title(f'You selected: {selected_option} database')
     cursor = connection.cursor()
-    selected_option = stx.tab_bar(data=[
-    stx.TabBarItemData(id=1, title="Query", description="Run SQL Query"),
-    stx.TabBarItemData(id=2, title="Run", description="View Data Dynamically"),
-], default=1)
+    selected_option=1
     if  selected_option == '1':
         dictionarydata={
             "select Query":{'id':"0"},
