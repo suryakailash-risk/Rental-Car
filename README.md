@@ -39,7 +39,7 @@ This project is a Rental Car Management System (RCMS) designed to manage car ren
 
 ### Configuration
 
-1. Update the database connection settings in the code to match your AWS RDS MySQL instance.
+1. Update the database connection settings in the code to match your AWS RDS MySQL instance. (I have changed to loacl you can change the link of the host)
 
 2. If you have any additional stored procedures or queries, add them to the `dictionarydata` variable in the code.
 
